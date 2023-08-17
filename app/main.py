@@ -6,8 +6,8 @@ import os
 import pymongo
 import time
 from flask import Flask, render_template, request, send_from_directory, Response
-from image_similarity_measures.quality_metrics import psnr, rmse, ssim, sre
-from multiprocessing import Pool
+from image_similarity_measures.quality_metrics import psnr, rmse, sre
+from multiprocessing import Pool, cpu_count
 from PIL import Image
 
 application = Flask(__name__)
@@ -80,7 +80,6 @@ def compare_images(original_img, compare_img, compare_img_name: str) -> dict:
     return {
         'img_name': compare_img_name,
         'psnr': psnr(original_img, compare_img),
-        'ssim': ssim(original_img, compare_img),
         'rmse': rmse(original_img, compare_img),
         'sre': sre(original_img, compare_img)
     }
@@ -99,8 +98,8 @@ def get_similar_by_metric(compare_results: dict, metric_size=10) -> set:
 
 
 def calculate_similarity(original_img_path: str, collection: str, site: str) -> dict:
-    total_result = {'psnr': {}, 'ssim': {}, 'rmse': {}, 'sre': {}}
-    with Pool(4) as pool:
+    total_result = {'psnr': {}, 'rmse': {}, 'sre': {}}
+    with Pool(processes=cpu_count()) as pool:
         compare_path = '{}/{}/{}/'.format(application.config['COMPARE_IMAGES'], collection, site)
         args = [
             (cv.imread(original_img_path),
@@ -112,7 +111,6 @@ def calculate_similarity(original_img_path: str, collection: str, site: str) -> 
 
         for value in result.get():
             total_result['psnr'].update({value['img_name']: value['psnr']})
-            total_result['ssim'].update({value['img_name']: value['ssim']})
             total_result['rmse'].update({value['img_name']: value['rmse']})
             total_result['sre'].update({value['img_name']: value['sre']})
         pool.close()

@@ -25,6 +25,6 @@ Or save the result in file that later can be browsed or downloaded.
 - [ ] PH Pesos exchange rate (to USD, CNY) and column with converted price for products.
 - [ ] Selector for similarity metrics.
 - [ ] Drop-down list with collections in DB.
-- [ ] Auto-choose number of Pool workers according to the number of CPU cores.
+- [x] Auto-choose number of Pool workers according to the number of CPU cores.
 ### License
 This project is licensed under the terms of the Apache license.
