@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    container_name: similarity-flask
+    volumes:
+      - original_images:/app/static/original_images/
+      - ${IMAGES_PATH}:/app/static/images/
+    ports:
+      - "8080:8080"
+    networks:
+      - scrapy
+    environment:
+      - TZ=Asia/Shanghai
+      - MONGO_URL=${MONGO_URL}
+      - MONGO_DB=${MONGO_DB}
+      - SECRET_KEY=${SECRET_KEY}
+
+networks:
+  scrapy:
+    name: ${NETWORK_NAME}
+    external: true
+
+volumes:
+  original_images:

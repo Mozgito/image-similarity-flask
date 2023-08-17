@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.idea
+/venv
+.env
+/server/auth/.htpasswd
+
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+*.log

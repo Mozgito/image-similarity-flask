@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block products %}
+  <p class="h3 text-center p-3">全部产品清单 / List of all products</p>
+  <table id="product-data" class="table dataTable hover order-column">
+    <thead>
+      <tr>
+        <th width="21%">图像 / Image</th>
+        <th width="35%">产品名 / Name</th>
+        <th width="8%">价格 / Price</th>
+        <th width="6%">货币 / Currency</th>
+        <th width="22%">链接 / Link</th>
+        <th width="8%">网站 / Site</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    var table = $('#product-data').DataTable({
+      fixedHeader: true,
+      colReorder: true,
+      ajax: '/api/all-products',
+      buttons: {
+        buttons: [
+          {
+            extend: 'excelHtml5',
+            text: 'Export Excel',
+            filename: 'export',
+            exportOptions: {
+              modifier: {
+                page: 'all'
+              }
+            }
+          }
+        ]
+      },
+      columnDefs: [
+        {
+          target: "_all",
+          className: "dt-head-center"
+        }
+      ],
+      columns: [
+        {data: 'image', orderable: false, searchable: false, "render": function (data) {
+          return '<img src="/static/images/'+data+'" width="350px"/>';
+        }},
+        {data: 'name'},
+        {data: 'price'},
+        {data: 'currency'},
+        {data: 'url', "render": function (data) {
+          return '<a href="'+data+'" target="blank">'+data+'</a>';
+        }},
+        {data: 'site'}
+      ],
+    });
+  </script>
+{% endblock %}
