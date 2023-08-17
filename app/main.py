@@ -5,7 +5,7 @@ import numpy as np
 import os
 import pymongo
 import time
-from flask import Flask, render_template, request, send_from_directory, Response
+from flask import Flask, json, render_template, request, Response, send_from_directory
 from image_similarity_measures.quality_metrics import psnr, rmse, sre
 from multiprocessing import Pool, cpu_count
 from PIL import Image
@@ -122,6 +122,18 @@ def calculate_similarity(original_img_path: str, collection: str, site: str) -> 
     return total_result
 
 
+def get_dump_data(path: str, dump_name: str):
+    with open('{}/{}.json'.format(path, dump_name), 'r') as f:
+        data = json.load(f)
+
+    return data
+
+
+def save_dump_data(path: str, dump_name: str, dump_data) -> None:
+    with open('{}/{}.json'.format(path, dump_name), 'w') as f:
+        json.dump(dump_data, f)
+
+
 @application.route('/static/favicon/<filename>')
 def get_favicon(filename):
     return send_from_directory(application.config['FAVICON'], filename)
@@ -134,7 +146,7 @@ def get_original_image(filename):
 
 @application.route('/')
 def index():
-    return render_template('base.html', title='Similarity')
+    return render_template('base.html', title='Main')
 
 
 @application.route('/all', methods=['POST'])
@@ -159,7 +171,7 @@ def upload_image():
 
 
 @application.route('/api/all-products')
-def api_all_products() -> dict:
+def api_all_products() -> Response:
     collection = 'bags'
     table_data = []
 
@@ -173,11 +185,11 @@ def api_all_products() -> dict:
             'site': row['site']
         })
 
-    return {'data': table_data}
+    return json.jsonify({'data': table_data})
 
 
 @application.route('/api/similarity')
-def api_similarity() -> [dict, Response]:
+def api_similarity() -> Response:
     original_img_name = request.args.get('originalImg')
 
     if not isinstance(original_img_name, str) or not allowed_file(original_img_name):
@@ -190,6 +202,7 @@ def api_similarity() -> [dict, Response]:
     sites = get_db()[collection].distinct('site')
     top_similar_images = set()
     table_data = []
+    save_dump_data(application.config['COMPARE_DATA'], original_img_name, table_data)
 
     for site in sites:
         original_img_path = get_resized_image_path(original_img_name, site)
@@ -211,4 +224,6 @@ def api_similarity() -> [dict, Response]:
                         'site': row['site']
                     })
 
-    return {'data': table_data}
+    save_dump_data(application.config['COMPARE_DATA'], original_img_name, table_data)
+
+    return json.jsonify({'data': table_data})
