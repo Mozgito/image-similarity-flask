@@ -20,13 +20,12 @@
 
 {% block scripts %}
   <script>
-    var originalImg = document.getElementById('origImg');
     var table = $('#product-data').DataTable({
       fixedHeader: true,
       colReorder: true,
       ajax: {
         url: '/api/similarity',
-        data: {originalImg: originalImg.name}
+        data: {originalImg: '{{original_image}}'}
       },
       dom: 'Blfrtip',
       buttons: [
@@ -44,19 +43,19 @@
       ],
       columnDefs: [
         {
-          target: "_all",
-          className: "dt-head-center"
+          target: '_all',
+          className: 'dt-head-center'
         }
       ],
       columns: [
-        {data: 'image', orderable: false, searchable: false, "render": function (data) {
-          return '<img src="/static/images/'+data+'" width="350px"/>';
+        {data: 'image', orderable: false, searchable: false, 'render': function (data) {
+          return '<img src="/static/images/' + data + '" width="350px"/>';
         }},
         {data: 'name'},
         {data: 'price'},
         {data: 'currency'},
-        {data: 'url', "render": function (data) {
-          return '<a href="'+data+'" target="blank">'+data+'</a>';
+        {data: 'url', 'render': function (data) {
+          return '<a href="' + data + '" target="blank">' + data + '</a>';
         }},
         {data: 'site'}
       ],

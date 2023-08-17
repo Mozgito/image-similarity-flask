@@ -55,7 +55,7 @@
         </div>
         <div class="col-md-2 text-center">
           {% if original_image %}
-            <img src="{{ url_for('get_file', filename=original_image) }}" id="origImg" name={{original_image}} alt="Original Image" style="height: 155px;" data-bs-toggle="modal" data-bs-target="#imageModal">
+            <img src="{{ url_for('get_original_image', filename=original_image) }}" id="origImg" alt="Original Image" style="height: 175px;" data-bs-toggle="modal" data-bs-target="#imageModal">
             <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">
@@ -64,7 +64,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
-                    <img src="{{ url_for('get_file', filename=original_image) }}" alt="Original Image">
+                    <img src="{{ url_for('get_original_image', filename=original_image) }}" alt="Original Image">
                   </div>
                 </div>
               </div>

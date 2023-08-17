@@ -13,7 +13,8 @@ from PIL import Image
 application = Flask(__name__)
 application.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 application.config['FAVICON'] = os.path.join('static', 'favicon')
-application.config['ORIG_IMAGES'] = os.path.join('static', 'original_images')
+application.config['ORIG_IMAGES'] = os.path.join('static', 'compare_results/original_images')
+application.config['COMPARE_DATA'] = os.path.join('static', 'compare_results/data')
 application.config['COMPARE_IMAGES'] = os.path.join('static', 'images')
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -128,8 +129,8 @@ def get_favicon(filename):
     return send_from_directory(application.config['FAVICON'], filename)
 
 
-@application.route('/static/original_images/<filename>')
-def get_file(filename):
+@application.route('/static/compare_results/original_images/<filename>')
+def get_original_image(filename):
     return send_from_directory(application.config['ORIG_IMAGES'], filename)
 
 
