@@ -5,7 +5,7 @@ import numpy as np
 import os
 import pymongo
 import time
-from flask import Flask, json, render_template, request, Response, send_from_directory
+from flask import Flask, json, render_template, request, Response, redirect, send_from_directory, url_for
 from image_similarity_measures.quality_metrics import psnr, rmse, sre
 from multiprocessing import Pool, cpu_count
 from PIL import Image
@@ -134,28 +134,23 @@ def save_dump_data(path: str, dump_name: str, dump_data) -> None:
         json.dump(dump_data, f)
 
 
-@application.route('/static/favicon/<filename>')
-def get_favicon(filename):
+@application.route('/favicon/<filename>')
+def get_favicon(filename) -> Response:
     return send_from_directory(application.config['FAVICON'], filename)
 
 
-@application.route('/static/compare_results/original_images/<filename>')
-def get_original_image(filename):
+@application.route('/original_images/<filename>')
+def get_original_image(filename) -> Response:
     return send_from_directory(application.config['ORIG_IMAGES'], filename)
 
 
 @application.route('/')
-def index():
+def index() -> str:
     return render_template('base.html', title='Main')
 
 
-@application.route('/all', methods=['POST'])
-def all_products():
-    return render_template('all_products.html', title='All products')
-
-
-@application.route('/', methods=['POST'])
-def upload_image():
+@application.route('/upload-image', methods=['POST'])
+def upload_image() -> Response:
     file = request.files['origImgUpload']
 
     if file and allowed_file(file.filename):
@@ -165,9 +160,21 @@ def upload_image():
         resize_image(filename, 700)
         resize_image(filename, 350)
 
-        return render_template('similar_products.html', title='Similar products', original_image=filename)
+        return redirect(url_for('similarity', original_image=filename))
 
     return Response(status=204)
+
+
+@application.route('/all-products', methods=['POST'])
+def all_products():
+    return render_template('all_products.html', title='All products')
+
+
+@application.route('/similarity')
+def similarity():
+    original_img_name = request.args.get('original_image')
+
+    return render_template('similar_products.html', title='Similar products', original_image=original_img_name)
 
 
 @application.route('/api/all-products')

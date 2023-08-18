@@ -41,8 +41,8 @@
     <div class="container p-5">
       <p class="h1 text-center">Similar products by photo</p>
     </div>
-    <div class="container p-3">
-      <div class="row justify-content-between /*align-items-center*/">
+    {% block main %}<div class="container p-3">
+      <div class="row justify-content-evenly">
         <div class="col-md-4 text-center">
           <form class="was-validated" action="{{ url_for('upload_image') }}" enctype="multipart/form-data" method="POST">
             <div class="mb-4">
@@ -53,35 +53,17 @@
             <button type="submit" class="btn btn-primary">上传并开始 / Upload and start</button>
           </form>
         </div>
-        <div class="col-md-2 text-center">
-          {% if original_image %}
-            <img src="{{ url_for('get_original_image', filename=original_image) }}" id="origImg" alt="Original Image" style="height: 175px;" data-bs-toggle="modal" data-bs-target="#imageModal">
-            <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="imageModalLabel">原始图像 / Original Image</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    <img src="{{ url_for('get_original_image', filename=original_image) }}" alt="Original Image">
-                  </div>
-                </div>
-              </div>
-            </div>
-          {% endif %}
-        </div>
-        <div class="col-md-3 ms-auto text-center">
+        <div class="col-md-4 text-center">
           <form action="{{ url_for('all_products') }}" enctype="multipart/form-data" method="POST">
-            <div class="mb-4">
+            <div class="mb-5">
               <label class="form-label fw-bold">查看所有产品 / View all products</label>
-              <label class="form-text text-danger">注意：所有图像加载到您的浏览器中！ / Attention: It will load all the images into your browser!</label>
+              <label class="form-text text-danger mx-5">注意：所有图像加载到您的浏览器中！ / Attention: It will load all the images into your browser!</label>
             </div>
-            <button type="submit" class="btn btn-primary">全部装载 / LOAD ALL</button>
+            <button type="submit" class="btn btn-primary mt-2">全部装载 / LOAD ALL</button>
           </form>
+        </div>
       </div>
-      </div>
-    </div>
+    </div>{% endblock main %}
     <div class="container">
       {% block products %}{% endblock products %}
     </div>

@@ -1,16 +1,62 @@
 {% extends "base.html" %}
 
+{% block main %}
+  <div class="container p-1">
+    <div class="row">
+      <div class="col-md-3">
+        <a href="/" class="text-decoration-none">返回主页 / Back to main page
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="container p-3">
+    <div class="row justify-content-evenly">
+      <div class="col-md-2 text-center">
+        {% if original_image %}
+          <img src="{{ url_for('get_original_image', filename=original_image) }}" id="origImg" alt="Original Image" class="img-fluid" data-bs-toggle="modal" data-bs-target="#imageModal">
+          <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="imageModalLabel">原始图像 / Original Image</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <img src="{{ url_for('get_original_image', filename=original_image) }}" alt="Original Image">
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+      <div class="col-md-4 text-center">
+        <form class="was-validated" action="{{ url_for('upload_image') }}" enctype="multipart/form-data" method="POST">
+          <div class="mb-4">
+            <label for="origImgUpload" class="form-label fw-bold">上传原始图像 / Upload original image</label>
+            <input type="file" class="form-control" name="origImgUpload" id="origImgUpload" aria-describedby="origImgUploadHelp" required>
+            <div id="origImgUploadHelp" class="form-text text-warning">允许的图像类型 / Allowed image types are: jpg, jpeg, png, bmp, webp.</div>
+          </div>
+          <button type="submit" class="btn btn-primary">上传并开始 / Upload and start</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endblock main %}
+
 {% block products %}
-  <p class="h3 text-center p-3">类似产品清单 / List of similar products</p>
+  <p class="h3 text-center p-4">类似产品清单 / List of similar products</p>
   <table id="product-data" class="table dataTable hover order-column">
     <thead>
       <tr>
-        <th width="21%">图像 / Image</th>
-        <th width="35%">产品名 / Name</th>
-        <th width="8%">价格 / Price</th>
-        <th width="6%">货币 / Currency</th>
-        <th width="22%">链接 / Link</th>
-        <th width="8%">网站 / Site</th>
+        <th style="width:30%!important">图像 / Image</th>
+        <th style="width:24%!important">产品名 / Name</th>
+        <th style="width:8%!important">价格 / Price</th>
+        <th style="width:8%!important">货币 / Currency</th>
+        <th style="width:22%!important">链接 / Link</th>
+        <th style="width:8%!important">网站 / Site</th>
       </tr>
     </thead>
     <tbody>
@@ -49,7 +95,7 @@
       ],
       columns: [
         {data: 'image', orderable: false, searchable: false, 'render': function (data) {
-          return '<img src="/static/images/' + data + '" width="350px"/>';
+          return '<img src="/static/images/' + data + '" class="img-fluid"/>';
         }},
         {data: 'name'},
         {data: 'price'},
