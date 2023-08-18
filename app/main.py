@@ -11,15 +11,14 @@ from multiprocessing import Pool, cpu_count
 from PIL import Image
 
 application = Flask(__name__)
-application.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
-application.config['FAVICON'] = os.path.join('static', 'favicon')
+application.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 application.config['ORIG_IMAGES'] = os.path.join('static', 'compare_results/original_images')
 application.config['COMPARE_DATA'] = os.path.join('static', 'compare_results/data')
 application.config['COMPARE_IMAGES'] = os.path.join('static', 'images')
 np.seterr(divide='ignore', invalid='ignore')
 
-MONGO_URL = os.environ.get("MONGO_URL")
-MONGO_DB = os.environ.get("MONGO_DB")
+MONGO_URL = os.environ.get('MONGO_URL')
+MONGO_DB = os.environ.get('MONGO_DB')
 ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'bmp']
 
 
@@ -132,11 +131,6 @@ def get_dump_data(path: str, dump_name: str):
 def save_dump_data(path: str, dump_name: str, dump_data) -> None:
     with open('{}/{}.json'.format(path, dump_name), 'w') as f:
         json.dump(dump_data, f)
-
-
-@application.route('/favicon/<filename>')
-def get_favicon(filename) -> Response:
-    return send_from_directory(application.config['FAVICON'], filename)
 
 
 @application.route('/original_images/<filename>')
