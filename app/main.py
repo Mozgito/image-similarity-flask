@@ -5,20 +5,20 @@ import numpy as np
 import os
 import pymongo
 import time
-from flask import Flask, render_template, request, send_from_directory, Response
-from image_similarity_measures.quality_metrics import psnr, rmse, ssim, sre
-from multiprocessing import Pool
+from flask import Flask, json, render_template, request, Response, redirect, send_from_directory, url_for
+from image_similarity_measures.quality_metrics import psnr, rmse, sre
+from multiprocessing import Pool, Process, cpu_count
 from PIL import Image
 
 application = Flask(__name__)
-application.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
-application.config['FAVICON'] = os.path.join('static', 'favicon')
-application.config['ORIG_IMAGES'] = os.path.join('static', 'original_images')
+application.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+application.config['ORIG_IMAGES'] = os.path.join('static', 'compare_results/original_images')
+application.config['COMPARE_DATA'] = os.path.join('static', 'compare_results/data')
 application.config['COMPARE_IMAGES'] = os.path.join('static', 'images')
 np.seterr(divide='ignore', invalid='ignore')
 
-MONGO_URL = os.environ.get("MONGO_URL")
-MONGO_DB = os.environ.get("MONGO_DB")
+MONGO_URL = os.environ.get('MONGO_URL')
+MONGO_DB = os.environ.get('MONGO_DB')
 ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'bmp']
 
 
@@ -64,8 +64,6 @@ def resize_image(img_name: str, size: int) -> None:
             value=[255, 255, 255]
         )
         cv.imwrite(os.path.join(application.config['ORIG_IMAGES'], str(size), img_name), img_new_padded)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
 
 
 def get_resized_image_path(original_img_name: str, site: str) -> str:
@@ -75,11 +73,13 @@ def get_resized_image_path(original_img_name: str, site: str) -> str:
     return os.path.join(application.config['ORIG_IMAGES'], '350', original_img_name)
 
 
-def compare_images(original_img, compare_img, compare_img_name: str) -> dict:
+def compare_images(original_img_path, compare_img_path, compare_img_name: str) -> dict:
+    original_img = cv.imread(original_img_path)
+    compare_img = cv.imread(compare_img_path)
+
     return {
         'img_name': compare_img_name,
         'psnr': psnr(original_img, compare_img),
-        'ssim': ssim(original_img, compare_img),
         'rmse': rmse(original_img, compare_img),
         'sre': sre(original_img, compare_img)
     }
@@ -98,12 +98,12 @@ def get_similar_by_metric(compare_results: dict, metric_size=10) -> set:
 
 
 def calculate_similarity(original_img_path: str, collection: str, site: str) -> dict:
-    total_result = {'psnr': {}, 'ssim': {}, 'rmse': {}, 'sre': {}}
-    with Pool(4) as pool:
+    total_result = {'psnr': {}, 'rmse': {}, 'sre': {}}
+    with Pool(processes=cpu_count()) as pool:
         compare_path = '{}/{}/{}/'.format(application.config['COMPARE_IMAGES'], collection, site)
         args = [
-            (cv.imread(original_img_path),
-             cv.imread(os.path.join(compare_path, compare_img_name)),
+            (original_img_path,
+             os.path.join(compare_path, compare_img_name),
              compare_img_name)
             for compare_img_name in os.listdir(compare_path)
         ]
@@ -111,40 +111,42 @@ def calculate_similarity(original_img_path: str, collection: str, site: str) -> 
 
         for value in result.get():
             total_result['psnr'].update({value['img_name']: value['psnr']})
-            total_result['ssim'].update({value['img_name']: value['ssim']})
             total_result['rmse'].update({value['img_name']: value['rmse']})
             total_result['sre'].update({value['img_name']: value['sre']})
         pool.close()
         pool.join()
 
-    cv.waitKey(0)
-    cv.destroyAllWindows()
-
     return total_result
 
 
-@application.route('/static/favicon/<filename>')
-def get_favicon(filename):
-    return send_from_directory(application.config['FAVICON'], filename)
+def is_dump_exist(path: str, dump_name: str) -> bool:
+    return os.path.exists('{}/{}.json'.format(path, dump_name))
 
 
-@application.route('/static/original_images/<filename>')
-def get_file(filename):
+def get_dump_data(path: str, dump_name: str):
+    with open('{}/{}.json'.format(path, dump_name), 'r') as f:
+        data = json.load(f)
+
+    return data
+
+
+def save_dump_data(path: str, dump_name: str, dump_data) -> None:
+    with open('{}/{}.json'.format(path, dump_name), 'w') as f:
+        json.dump(dump_data, f)
+
+
+@application.route('/original_images/<filename>')
+def get_original_image(filename) -> Response:
     return send_from_directory(application.config['ORIG_IMAGES'], filename)
 
 
 @application.route('/')
-def index():
-    return render_template('base.html', title='Similarity')
+def index() -> str:
+    return render_template('base.html', title='Main')
 
 
-@application.route('/all', methods=['POST'])
-def all_products():
-    return render_template('all_products.html', title='All products')
-
-
-@application.route('/', methods=['POST'])
-def upload_image():
+@application.route('/upload-image', methods=['POST'])
+def upload_image() -> Response:
     file = request.files['origImgUpload']
 
     if file and allowed_file(file.filename):
@@ -154,13 +156,57 @@ def upload_image():
         resize_image(filename, 700)
         resize_image(filename, 350)
 
-        return render_template('similar_products.html', title='Similar products', original_image=filename)
+        return redirect(url_for('similarity', original_image=filename))
 
     return Response(status=204)
 
 
+@application.route('/all-products', methods=['POST'])
+def all_products() -> str:
+    return render_template('all_products.html', title='All products')
+
+
+@application.route('/similarity')
+def similarity() -> [str, Response]:
+    image_name = request.args.get('original_image')
+
+    if not isinstance(image_name, str) or not allowed_file(image_name):
+        return Response(status=400)
+
+    if not os.path.isfile(application.config['ORIG_IMAGES'] + '/' + image_name):
+        return Response(status=404)
+
+    if not is_dump_exist(application.config['COMPARE_DATA'], image_name + '_log'):
+        Process(target=api_similarity_calculate, args=[image_name]).start()
+
+        return render_template(
+            'similar_products.html',
+            title='Similar products',
+            original_image=image_name,
+            calculate_status='calculating'
+        )
+
+    similarity_status = get_dump_data(application.config['COMPARE_DATA'], image_name + '_log')
+    if similarity_status == 'finished':
+        data = json.dumps({'data': get_dump_data(application.config['COMPARE_DATA'], image_name)})
+        return render_template(
+            'similar_products.html',
+            title='Similar products',
+            original_image=image_name,
+            calculate_status=similarity_status,
+            product_data=data
+        )
+    else:
+        return render_template(
+            'similar_products.html',
+            title='Similar products',
+            original_image=image_name,
+            calculate_status=similarity_status
+        )
+
+
 @application.route('/api/all-products')
-def api_all_products() -> dict:
+def api_all_products() -> Response:
     collection = 'bags'
     table_data = []
 
@@ -174,42 +220,56 @@ def api_all_products() -> dict:
             'site': row['site']
         })
 
-    return {'data': table_data}
+    return json.jsonify({'data': table_data})
 
 
-@application.route('/api/similarity')
-def api_similarity() -> [dict, Response]:
-    original_img_name = request.args.get('originalImg')
-
-    if not isinstance(original_img_name, str) or not allowed_file(original_img_name):
+@application.route('/api/similarity/<image_name>/calculate')
+def api_similarity_calculate(image_name: str) -> Response:
+    if not isinstance(image_name, str) or not allowed_file(image_name):
         return Response(status=400)
 
-    if not os.path.isfile(application.config['ORIG_IMAGES'] + '/' + original_img_name):
+    if not os.path.isfile(application.config['ORIG_IMAGES'] + '/' + image_name):
         return Response(status=404)
 
-    collection = 'bags'
-    sites = get_db()[collection].distinct('site')
-    top_similar_images = set()
-    table_data = []
+    try:
+        collection = 'bags'
+        sites = get_db()[collection].distinct('site')
+        top_similar_images = set()
+        table_data = []
+        save_dump_data(application.config['COMPARE_DATA'], image_name + '_log', 'calculating')
 
-    for site in sites:
-        original_img_path = get_resized_image_path(original_img_name, site)
-        total_similarity_result = calculate_similarity(original_img_path, collection, site)
-        top_similar_images.update(get_similar_by_metric(total_similarity_result, 25))
+        for site in sites:
+            original_img_path = get_resized_image_path(image_name, site)
+            total_similarity_result = calculate_similarity(original_img_path, collection, site)
+            top_similar_images.update(get_similar_by_metric(total_similarity_result, 25))
 
-        for image_name in top_similar_images:
-            image_path = '{}/{}/{}'.format(collection, site, image_name)
-            product_data = get_db()[collection].find({'images.path': image_path}).sort([('price', 1)]).limit(1)
+            for similar_image_name in top_similar_images:
+                similar_image_path = '{}/{}/{}'.format(collection, site, similar_image_name)
+                product_data = get_db()[collection].find({'images.path': similar_image_path}).sort([('price', 1)]).limit(1)
 
-            for row in product_data:
-                if next(filter(lambda d: d.get('url') == row['url'], table_data), None) is None:
-                    table_data.append({
-                        'image': image_path,
-                        'name': row['name'],
-                        'price': row['price'],
-                        'currency': row['currency'],
-                        'url': row['url'],
-                        'site': row['site']
-                    })
+                for row in product_data:
+                    if next(filter(lambda d: d.get('url') == row['url'], table_data), None) is None:
+                        table_data.append({
+                            'image': similar_image_path,
+                            'name': row['name'],
+                            'price': row['price'],
+                            'currency': row['currency'],
+                            'url': row['url'],
+                            'site': row['site']
+                        })
 
-    return {'data': table_data}
+        save_dump_data(application.config['COMPARE_DATA'], image_name, table_data)
+        save_dump_data(application.config['COMPARE_DATA'], image_name + '_log', 'finished')
+
+        return json.jsonify({'data': table_data})
+    except Exception as e:
+        save_dump_data(application.config['COMPARE_DATA'], image_name + '_log', 'error')
+        return Response(status=400, response=str(e))
+
+
+@application.route('/api/similarity/<image_name>/result')
+def api_similarity_result(image_name: str) -> Response:
+    if is_dump_exist(application.config['COMPARE_DATA'], image_name):
+        return json.jsonify({'data': get_dump_data(application.config['COMPARE_DATA'], image_name)})
+
+    return Response(status=404)

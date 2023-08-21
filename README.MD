@@ -10,7 +10,7 @@ Images are stored in directory and product data stored in MongoDB.
 * Backend: Flask + uWSGI + Nginx + Supervisord + external Mongo. Frontend Bootstrap 5 + jQuery UI.
 * Project will be ready on `port:8080` and it's under basic htpasswd authentication.
 * Shares same network with scrapy Mongo.
-* Image similarity is calculated by 4 metrics: PSNR, RMSE, SSIM and SRE. 
+* Image similarity is calculated by 3 metrics: PSNR, RMSE, and SRE. 
 Top 10 results (by picture) from each metric by each site are chosen.
 ### First-time setup
 1. Set Mongo connection data and path to images in `.env`. Settings are equivalent to the scrapy project. 
@@ -18,13 +18,9 @@ Note: IP address of Mongo will be equal to Mongo container name.
 2. Add user for Nginx authentication. More details in the README at `server/auth`.
 3. Build and start project `docker compose up -d`
 ### TODO
-- [ ] If comparison process takes more than 60s, AJAX will return 504.
-Comparison has to be done in background. Check Celery task manager.
-- [ ] Controlling the comparison process. If page is refreshed or new comparison started, kill the current process. 
-Or save the result in file that later can be browsed or downloaded.
+- [ ] Replace Processing with Celery task manager.
 - [ ] PH Pesos exchange rate (to USD, CNY) and column with converted price for products.
 - [ ] Selector for similarity metrics.
 - [ ] Drop-down list with collections in DB.
-- [ ] Auto-choose number of Pool workers according to the number of CPU cores.
 ### License
 This project is licensed under the terms of the Apache license.

@@ -2,6 +2,14 @@
 
 ### Latest Changes
 
+### 1.1.0
+* Refactor compare data structure.
+* Calculate similarity in background.
+* Save calculation results in local storage.
+* Remove SSIM metric, too slow.
+* Auto-choose worker numbers for similarity pool.
+* Move JS and CSS to local storage.
+
 ### 1.0.0
 * This project (docker branch) is depending on the other `scrapy-spiders` project, that is scraping products (photos and data).
 * Built on back of docker & docker-compose.

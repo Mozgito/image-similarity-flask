@@ -4,7 +4,7 @@ services:
     build: .
     container_name: similarity-flask
     volumes:
-      - original_images:/app/static/original_images/
+      - compare_results:/app/static/compare_results/
       - ${IMAGES_PATH}:/app/static/images/
     ports:
       - "8080:8080"
@@ -22,4 +22,4 @@ networks:
     external: true
 
 volumes:
-  original_images:
+  compare_results:

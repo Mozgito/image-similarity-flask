@@ -28,8 +28,11 @@ COPY server/uwsgi.ini /etc/uwsgi/
 COPY server/supervisord.conf /etc/supervisor/
 
 COPY ./app /app
-RUN mkdir /app/static/images && mkdir -p /app/static/original_images/350 && mkdir -p /app/static/original_images/700
+RUN mkdir /app/static/images && \
+    mkdir -p /app/static/compare_results/original_images/350 && \
+    mkdir -p /app/static/compare_results/original_images/700 && \
+    mkdir -p /app/static/compare_results/data
 WORKDIR /app
-RUN chown -R nginx:nginx /app/static/original_images
+RUN chown -R nginx:nginx /app/static/compare_results
 
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]

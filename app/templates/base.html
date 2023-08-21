@@ -4,18 +4,16 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('get_favicon', filename='apple-touch-icon.png') }}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('get_favicon', filename='favicon-32x32.png') }}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('get_favicon', filename='favicon-16x16.png') }}">
-  <link rel="manifest" href="{{ url_for('get_favicon', filename='site.webmanifest') }}" crossorigin="use-credentials">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}" crossorigin="use-credentials">
   <!-- Bootstrap 5 CSS-->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-        crossorigin="anonymous">
-  <!-- JQueryUI Datatables CSS -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/v/ju/jq-3.7.0/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-html5-2.4.1/cr-1.7.0/fh-3.4.0/datatables.min.css">
-  <!-- Sweetalert JS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.12.5/dist/sweetalert2.all.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" crossorigin="use-credentials">
+  <!-- jQueryUI Datatables CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/datatables.min.css') }}" crossorigin="use-credentials">
+  <!-- Sweetalert JS -->
+  <script src="{{ url_for('static', filename='js/sweetalert2.all.min.js') }}"></script>
   {% if title %}
       <title>Similarity - {{ title }}</title>
   {% else %}
@@ -41,57 +39,38 @@
     <div class="container p-5">
       <p class="h1 text-center">Similar products by photo</p>
     </div>
-    <div class="container p-3">
-      <div class="row justify-content-between /*align-items-center*/">
+    {% block main %}<div class="container p-3">
+      <div class="row justify-content-evenly">
         <div class="col-md-4 text-center">
           <form class="was-validated" action="{{ url_for('upload_image') }}" enctype="multipart/form-data" method="POST">
             <div class="mb-4">
               <label for="origImgUpload" class="form-label fw-bold">上传原始图像 / Upload original image</label>
-              <input type="file" class="form-control" name="origImgUpload" id="origImgUpload" aria-describedby="origImgUploadHelp" required>
+              <input type="file" accept="image/*" class="form-control" name="origImgUpload" id="origImgUpload" aria-describedby="origImgUploadHelp" required>
               <div id="origImgUploadHelp" class="form-text text-warning">允许的图像类型 / Allowed image types are: jpg, jpeg, png, bmp, webp.</div>
             </div>
             <button type="submit" class="btn btn-primary">上传并开始 / Upload and start</button>
           </form>
         </div>
-        <div class="col-md-2 text-center">
-          {% if original_image %}
-            <img src="{{ url_for('get_file', filename=original_image) }}" id="origImg" name={{original_image}} alt="Original Image" style="height: 155px;" data-bs-toggle="modal" data-bs-target="#imageModal">
-            <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="imageModalLabel">原始图像 / Original Image</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    <img src="{{ url_for('get_file', filename=original_image) }}" alt="Original Image">
-                  </div>
-                </div>
-              </div>
-            </div>
-          {% endif %}
-        </div>
-        <div class="col-md-3 ms-auto text-center">
+        <div class="col-md-4 text-center">
           <form action="{{ url_for('all_products') }}" enctype="multipart/form-data" method="POST">
-            <div class="mb-4">
+            <div class="mb-5">
               <label class="form-label fw-bold">查看所有产品 / View all products</label>
-              <label class="form-text text-danger">注意：所有图像加载到您的浏览器中！ / Attention: It will load all the images into your browser!</label>
+              <label class="form-text text-danger mx-5">注意：所有图像加载到您的浏览器中！ / Attention: It will load all the images into your browser!</label>
             </div>
-            <button type="submit" class="btn btn-primary">全部装载 / LOAD ALL</button>
+            <button type="submit" class="btn btn-primary mt-2">全部装载 / LOAD ALL</button>
           </form>
+        </div>
       </div>
-      </div>
-    </div>
+    </div>{% endblock main %}
     <div class="container">
       {% block products %}{% endblock products %}
+      {% block error_page %}{% endblock error_page %}
     </div>
   </main>
   <!-- Bootstrap 5 Bundle JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-          crossorigin="anonymous"></script>
-  <!-- JQueryUI Datatables JS -->
-  <script src="https://cdn.datatables.net/v/ju/jq-3.7.0/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-html5-2.4.1/cr-1.7.0/fh-3.4.0/datatables.min.js"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}" crossorigin="use-credentials"></script>
+  <!-- jQueryUI Datatables JS -->
+  <script src="{{ url_for('static', filename='js/datatables.min.js') }}" crossorigin="use-credentials"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
