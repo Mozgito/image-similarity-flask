@@ -64,8 +64,6 @@ def resize_image(img_name: str, size: int) -> None:
             value=[255, 255, 255]
         )
         cv.imwrite(os.path.join(application.config['ORIG_IMAGES'], str(size), img_name), img_new_padded)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
 
 
 def get_resized_image_path(original_img_name: str, site: str) -> str:
@@ -75,7 +73,10 @@ def get_resized_image_path(original_img_name: str, site: str) -> str:
     return os.path.join(application.config['ORIG_IMAGES'], '350', original_img_name)
 
 
-def compare_images(original_img, compare_img, compare_img_name: str) -> dict:
+def compare_images(original_img_path, compare_img_path, compare_img_name: str) -> dict:
+    original_img = cv.imread(original_img_path)
+    compare_img = cv.imread(compare_img_path)
+
     return {
         'img_name': compare_img_name,
         'psnr': psnr(original_img, compare_img),
@@ -101,8 +102,8 @@ def calculate_similarity(original_img_path: str, collection: str, site: str) -> 
     with Pool(processes=cpu_count()) as pool:
         compare_path = '{}/{}/{}/'.format(application.config['COMPARE_IMAGES'], collection, site)
         args = [
-            (cv.imread(original_img_path),
-             cv.imread(os.path.join(compare_path, compare_img_name)),
+            (original_img_path,
+             os.path.join(compare_path, compare_img_name),
              compare_img_name)
             for compare_img_name in os.listdir(compare_path)
         ]
@@ -114,9 +115,6 @@ def calculate_similarity(original_img_path: str, collection: str, site: str) -> 
             total_result['sre'].update({value['img_name']: value['sre']})
         pool.close()
         pool.join()
-
-    cv.waitKey(0)
-    cv.destroyAllWindows()
 
     return total_result
 

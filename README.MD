@@ -20,7 +20,7 @@ Note: IP address of Mongo will be equal to Mongo container name.
 ### TODO
 - [x] If comparison process takes more than 60s, AJAX will return 504.
 Comparison has to be done in background. Check Celery task manager.
-- [ ] Pool doesn't share memory between workers, causing memory overuse.
+- [x] Pool doesn't share memory between workers, causing memory overuse.
 - [ ] Controlling the comparison process. If page is refreshed or new comparison started, kill the current process. 
 Or save the result in file that later can be browsed or downloaded.
 - [ ] PH Pesos exchange rate (to USD, CNY) and column with converted price for products.
