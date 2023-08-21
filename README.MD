@@ -18,14 +18,9 @@ Note: IP address of Mongo will be equal to Mongo container name.
 2. Add user for Nginx authentication. More details in the README at `server/auth`.
 3. Build and start project `docker compose up -d`
 ### TODO
-- [x] If comparison process takes more than 60s, AJAX will return 504.
-Comparison has to be done in background. Check Celery task manager.
-- [x] Pool doesn't share memory between workers, causing memory overuse.
-- [ ] Controlling the comparison process. If page is refreshed or new comparison started, kill the current process. 
-Or save the result in file that later can be browsed or downloaded.
+- [ ] Replace Processing with Celery task manager.
 - [ ] PH Pesos exchange rate (to USD, CNY) and column with converted price for products.
 - [ ] Selector for similarity metrics.
 - [ ] Drop-down list with collections in DB.
-- [x] Auto-choose number of Pool workers according to the number of CPU cores.
 ### License
 This project is licensed under the terms of the Apache license.
