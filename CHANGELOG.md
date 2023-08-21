@@ -1,6 +1,7 @@
 ## Release Notes
 
 ### Latest Changes
+* Frontend: Word-break for links, Scroll top on changing products page.
 
 ### 1.1.0
 * Refactor compare data structure.
