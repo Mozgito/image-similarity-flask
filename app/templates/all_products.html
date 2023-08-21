@@ -60,13 +60,13 @@
       ],
       columns: [
         {data: 'image', orderable: false, searchable: false, "render": function (data) {
-          return '<img src="/static/images/'+data+'" class="img-fluid"/>';
+          return '<img src="/static/images/' + data + '" class="img-fluid"/>';
         }},
         {data: 'name'},
         {data: 'price'},
         {data: 'currency'},
         {data: 'url', "render": function (data) {
-          return '<a href="'+data+'" target="blank">'+data+'</a>';
+          return '<a href="' + data + '" target="blank">' + data + '</a>';
         }},
         {data: 'site'}
       ],

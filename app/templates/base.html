@@ -45,7 +45,7 @@
           <form class="was-validated" action="{{ url_for('upload_image') }}" enctype="multipart/form-data" method="POST">
             <div class="mb-4">
               <label for="origImgUpload" class="form-label fw-bold">上传原始图像 / Upload original image</label>
-              <input type="file" class="form-control" name="origImgUpload" id="origImgUpload" aria-describedby="origImgUploadHelp" required>
+              <input type="file" accept="image/*" class="form-control" name="origImgUpload" id="origImgUpload" aria-describedby="origImgUploadHelp" required>
               <div id="origImgUploadHelp" class="form-text text-warning">允许的图像类型 / Allowed image types are: jpg, jpeg, png, bmp, webp.</div>
             </div>
             <button type="submit" class="btn btn-primary">上传并开始 / Upload and start</button>
@@ -64,6 +64,7 @@
     </div>{% endblock main %}
     <div class="container">
       {% block products %}{% endblock products %}
+      {% block error_page %}{% endblock error_page %}
     </div>
   </main>
   <!-- Bootstrap 5 Bundle JS -->
