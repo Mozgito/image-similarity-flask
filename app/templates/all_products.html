@@ -20,10 +20,10 @@
     <thead>
       <tr>
         <th style="width:30%!important">图像 / Image</th>
-        <th style="width:24%!important">产品名 / Name</th>
+        <th style="width:24%!important" class="text-break">产品名 / Name</th>
         <th style="width:8%!important">价格 / Price</th>
         <th style="width:9%!important">货币 / Currency</th>
-        <th style="width:22%!important">链接 / Link</th>
+        <th style="width:22%!important" class="text-break">链接 / Link</th>
         <th style="width:8%!important">网站 / Site</th>
       </tr>
     </thead>
@@ -66,10 +66,17 @@
         {data: 'price'},
         {data: 'currency'},
         {data: 'url', "render": function (data) {
-          return '<a href="' + data + '" target="blank">' + data + '</a>';
+          return '<a href="' + data + '" class="text-break" target="blank">' + data + '</a>';
         }},
         {data: 'site'}
       ],
+    });
+
+    table.on('page.dt', function() {
+      $('html, body').animate({
+        scrollTop: $(".dataTables_wrapper").offset().top
+      }, 'slow');
+      $('thead tr th:first-child').focus().blur();
     });
   </script>
 {% endblock %}
