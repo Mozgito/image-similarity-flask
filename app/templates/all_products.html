@@ -19,11 +19,12 @@
   <table id="product-data" class="table dataTable hover order-column">
     <thead>
       <tr>
-        <th style="width:30%!important">图像 / Image</th>
-        <th style="width:24%!important" class="text-break">产品名 / Name</th>
+        <th style="width:27%!important">图像 / Image</th>
+        <th style="width:19%!important" class="text-break">产品名 / Name</th>
         <th style="width:8%!important">价格 / Price</th>
         <th style="width:9%!important">货币 / Currency</th>
-        <th style="width:22%!important" class="text-break">链接 / Link</th>
+        <th style="width:11%!important">价格 (比索) / PHP Price</th>
+        <th style="width:19%!important" class="text-break">链接 / Link</th>
         <th style="width:8%!important">网站 / Site</th>
       </tr>
     </thead>
@@ -65,6 +66,7 @@
         {data: 'name'},
         {data: 'price'},
         {data: 'currency'},
+        {data: 'php_price'},
         {data: 'url', "render": function (data) {
           return '<a href="' + data + '" class="text-break" target="blank">' + data + '</a>';
         }},

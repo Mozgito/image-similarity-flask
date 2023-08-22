@@ -10,11 +10,7 @@ services:
       - "8080:8080"
     networks:
       - scrapy
-    environment:
-      - TZ=Asia/Shanghai
-      - MONGO_URL=${MONGO_URL}
-      - MONGO_DB=${MONGO_DB}
-      - SECRET_KEY=${SECRET_KEY}
+    env_file: .env
 
 networks:
   scrapy:

@@ -3,7 +3,7 @@ __pycache__/
 .idea
 /venv
 .env
-/server/auth/.htpasswd
+.htpasswd
 
 eggs/
 .eggs/
