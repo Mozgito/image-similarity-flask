@@ -4,6 +4,7 @@ import math
 import numpy as np
 import os
 import pymongo
+import requests
 import time
 from flask import Flask, json, render_template, request, Response, redirect, send_from_directory, url_for
 from image_similarity_measures.quality_metrics import psnr, rmse, sre
@@ -11,20 +12,14 @@ from multiprocessing import Pool, Process, cpu_count
 from PIL import Image
 
 application = Flask(__name__)
-application.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-application.config['ORIG_IMAGES'] = os.path.join('static', 'compare_results/original_images')
-application.config['COMPARE_DATA'] = os.path.join('static', 'compare_results/data')
-application.config['COMPARE_IMAGES'] = os.path.join('static', 'images')
+application.config.from_prefixed_env('APP')
 np.seterr(divide='ignore', invalid='ignore')
-
-MONGO_URL = os.environ.get('MONGO_URL')
-MONGO_DB = os.environ.get('MONGO_DB')
 ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'bmp']
 
 
 def get_db():
-    client = pymongo.MongoClient(MONGO_URL, serverSelectionTimeoutMS=10000, connect=False)
-    return client[MONGO_DB]
+    client = pymongo.MongoClient(application.config['MONGO_URL'], serverSelectionTimeoutMS=10000, connect=False)
+    return client[application.config['MONGO_DB']]
 
 
 def allowed_file(filename: str) -> bool:
@@ -119,6 +114,31 @@ def calculate_similarity(original_img_path: str, collection: str, site: str) -> 
     return total_result
 
 
+def get_exchange_rate_data(currency='PHP') -> dict:
+    if not is_dump_exist('static/compare_results', currency.lower() + '_rate'):
+        update_exchange_rate_data(currency)
+
+    rate_data = get_dump_data('static/compare_results', currency.lower() + '_rate')
+
+    if rate_data['time_next_update_unix'] <= int(time.time()) and update_exchange_rate_data(currency):
+        rate_data = get_dump_data('static/compare_results', currency.lower() + '_rate')
+
+    return rate_data
+
+
+def update_exchange_rate_data(currency='PHP') -> bool:
+    rate_url = 'https://v6.exchangerate-api.com/v6/{}/latest/{}' \
+        .format(application.config['EXCHANGE_RATE_APIKEY'], currency.upper())
+    response = requests.get(rate_url)
+    rate_data = json.loads(response.content)
+
+    if 'result' in rate_data and rate_data['result'] == 'success':
+        save_dump_data('static/compare_results', currency.lower() + '_rate', rate_data)
+        return True
+
+    return False
+
+
 def is_dump_exist(path: str, dump_name: str) -> bool:
     return os.path.exists('{}/{}.json'.format(path, dump_name))
 
@@ -208,14 +228,21 @@ def similarity() -> [str, Response]:
 @application.route('/api/all-products')
 def api_all_products() -> Response:
     collection = 'bags'
+    php_rate = get_exchange_rate_data()['conversion_rates']
     table_data = []
 
     for row in get_db()[collection].find():
+        if row['currency'] != 'PHP':
+            php_price = round(float(row['price']) / php_rate[row['currency']], 2)
+        else:
+            php_price = row['price']
+
         table_data.append({
-            'image': row['images'][0]['path'],
+            'image': row['images'][0]['path'] if len(row['images']) > 0 else '',
             'name': row['name'],
             'price': row['price'],
             'currency': row['currency'],
+            'php_price': php_price,
             'url': row['url'],
             'site': row['site']
         })
@@ -234,6 +261,7 @@ def api_similarity_calculate(image_name: str) -> Response:
     try:
         collection = 'bags'
         sites = get_db()[collection].distinct('site')
+        php_rate = get_exchange_rate_data()['conversion_rates']
         top_similar_images = set()
         table_data = []
         save_dump_data(application.config['COMPARE_DATA'], image_name + '_log', 'calculating')
@@ -249,11 +277,17 @@ def api_similarity_calculate(image_name: str) -> Response:
 
                 for row in product_data:
                     if next(filter(lambda d: d.get('url') == row['url'], table_data), None) is None:
+                        if row['currency'] != 'PHP':
+                            php_price = round(float(row['price']) / php_rate[row['currency']], 2)
+                        else:
+                            php_price = row['price']
+
                         table_data.append({
                             'image': similar_image_path,
                             'name': row['name'],
                             'price': row['price'],
                             'currency': row['currency'],
+                            'php_price': php_price,
                             'url': row['url'],
                             'site': row['site']
                         })

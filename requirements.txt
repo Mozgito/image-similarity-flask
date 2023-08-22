@@ -7,3 +7,5 @@ pillow == 10.0.0
 pyfftw == 0.13.1
 pymongo == 4.4.*
 python-dotenv == 1.0.0
+requests == 2.31
+uwsgi == 2.0.22
