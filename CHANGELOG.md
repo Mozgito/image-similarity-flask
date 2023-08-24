@@ -1,7 +1,12 @@
 ## Release Notes
 
 ### Latest Changes
+
+### 1.1.3
 * Frontend: Word-break for links, Scroll top on changing products page.
+* Correct ENV and app configuration.
+* Add currency converter. Convert prices to PHP.
+* Add page with all compare results.
 
 ### 1.1.0
 * Refactor compare data structure.

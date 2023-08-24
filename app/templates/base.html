@@ -51,8 +51,16 @@
             <button type="submit" class="btn btn-primary">上传并开始 / Upload and start</button>
           </form>
         </div>
+        <div class="col-md-2 text-center">
+          <form action="{{ url_for('results') }}" enctype="multipart/form-data" method="GET">
+            <div class="mb-5">
+              <label class="form-label fw-bold">查看结果的列表 / View all results</label>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">结果的列表 / RESULTS</button>
+          </form>
+        </div>
         <div class="col-md-4 text-center">
-          <form action="{{ url_for('all_products') }}" enctype="multipart/form-data" method="POST">
+          <form action="{{ url_for('all_products') }}" enctype="multipart/form-data" method="GET">
             <div class="mb-5">
               <label class="form-label fw-bold">查看所有产品 / View all products</label>
               <label class="form-text text-danger mx-5">注意：所有图像加载到您的浏览器中！ / Attention: It will load all the images into your browser!</label>
@@ -63,8 +71,7 @@
       </div>
     </div>{% endblock main %}
     <div class="container">
-      {% block products %}{% endblock products %}
-      {% block error_page %}{% endblock error_page %}
+      {% block content %}{% endblock content %}
     </div>
   </main>
   <!-- Bootstrap 5 Bundle JS -->

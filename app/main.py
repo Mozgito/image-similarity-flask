@@ -170,7 +170,7 @@ def upload_image() -> Response:
     file = request.files['origImgUpload']
 
     if file and allowed_file(file.filename):
-        filename = str(int(time.time())) + '.jpg'
+        filename = str(int(time.time())) + '.png'
         img = Image.open(file)
         img.save(os.path.join(application.config['ORIG_IMAGES'], filename))
         resize_image(filename, 700)
@@ -181,7 +181,7 @@ def upload_image() -> Response:
     return Response(status=204)
 
 
-@application.route('/all-products', methods=['POST'])
+@application.route('/all-products')
 def all_products() -> str:
     return render_template('all_products.html', title='All products')
 
@@ -193,7 +193,7 @@ def similarity() -> [str, Response]:
     if not isinstance(image_name, str) or not allowed_file(image_name):
         return Response(status=400)
 
-    if not os.path.isfile(application.config['ORIG_IMAGES'] + '/' + image_name):
+    if not os.path.isfile(os.path.join(application.config['ORIG_IMAGES'], image_name)):
         return Response(status=404)
 
     if not is_dump_exist(application.config['COMPARE_DATA'], image_name + '_log'):
@@ -223,6 +223,27 @@ def similarity() -> [str, Response]:
             original_image=image_name,
             calculate_status=similarity_status
         )
+
+
+@application.route('/results')
+def results() -> str:
+    table_data = []
+
+    for image_name in os.listdir(application.config['ORIG_IMAGES']):
+        image_path = os.path.join(application.config['ORIG_IMAGES'], image_name)
+        if os.path.isfile(image_path):
+            table_data.append({
+                'image': image_path,
+                'date': time.ctime(os.path.getmtime(image_path)),
+                'url': url_for('similarity', original_image=image_name),
+                'status': get_dump_data(application.config['COMPARE_DATA'], image_name + '_log')
+            })
+
+    return render_template(
+        'results.html',
+        title='Results',
+        results_data=table_data
+    )
 
 
 @application.route('/api/all-products')
@@ -255,7 +276,7 @@ def api_similarity_calculate(image_name: str) -> Response:
     if not isinstance(image_name, str) or not allowed_file(image_name):
         return Response(status=400)
 
-    if not os.path.isfile(application.config['ORIG_IMAGES'] + '/' + image_name):
+    if not os.path.isfile(os.path.join(application.config['ORIG_IMAGES'], image_name)):
         return Response(status=404)
 
     try:
