@@ -15,17 +15,14 @@
 {% endblock main %}
 
 {% block content %}
-  <p class="h3 text-center p-4">全部产品清单 / List of all products</p>
-  <table id="product-data" class="table dataTable hover order-column">
+  <p class="h3 text-center p-4">结果的列表 / List of results</p>
+  <table id="results-data" class="table dataTable hover order-column">
     <thead>
       <tr>
-        <th style="width:27%!important">图像 / Image</th>
-        <th style="width:19%!important" class="text-break">产品名 / Name</th>
-        <th style="width:8%!important">价格 / Price</th>
-        <th style="width:9%!important">货币 / Currency</th>
-        <th style="width:11%!important">价格 (比索) / PHP Price</th>
-        <th style="width:19%!important" class="text-break">链接 / Link</th>
-        <th style="width:8%!important">网站 / Site</th>
+        <th style="width:30%!important">图像 / Image</th>
+        <th style="width:20%!important" class="text-break">日期 / Date</th>
+        <th style="width:35%!important" class="text-break">链接 / Link</th>
+        <th style="width:15%!important">状态 / Status</th>
       </tr>
     </thead>
     <tbody>
@@ -35,24 +32,10 @@
 
 {% block scripts %}
   <script>
-    var table = $('#product-data').DataTable({
+    var table = $('#results-data').DataTable({
       fixedHeader: true,
       colReorder: true,
-      ajax: '/api/all-products',
-      buttons: {
-        buttons: [
-          {
-            extend: 'excelHtml5',
-            text: 'Export Excel',
-            filename: 'export',
-            exportOptions: {
-              modifier: {
-                page: 'all'
-              }
-            }
-          }
-        ]
-      },
+      data: {{ results_data|safe }},
       columnDefs: [
         {
           target: "_all",
@@ -61,16 +44,13 @@
       ],
       columns: [
         {data: 'image', orderable: false, searchable: false, "render": function (data) {
-          return '<img src="/static/images/' + data + '" class="img-fluid"/>';
+          return '<img src="' + data + '" class="img-fluid"/>';
         }},
-        {data: 'name'},
-        {data: 'price'},
-        {data: 'currency'},
-        {data: 'php_price'},
+        {data: 'date'},
         {data: 'url', "render": function (data) {
           return '<a href="' + data + '" class="text-break" target="blank">' + data + '</a>';
         }},
-        {data: 'site'}
+        {data: 'status'}
       ],
     });
 
