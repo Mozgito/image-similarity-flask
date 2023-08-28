@@ -1,6 +1,8 @@
 ## Release Notes
 
 ### Latest Changes
+* Makefile for easy use
+* Add default sorting in tables (Site -> PHP price)
 
 ### 1.1.3
 * Frontend: Word-break for links, Scroll top on changing products page.
