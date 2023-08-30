@@ -32,6 +32,7 @@
 
 {% block scripts %}
   <script>
+
     var table = $('#results-data').DataTable({
       fixedHeader: true,
       colReorder: true,
@@ -40,7 +41,11 @@
         {
           target: "_all",
           className: "dt-head-center"
-        }
+        },
+        {
+          target: 1,
+          render: DataTable.render.datetime(),
+        },
       ],
       columns: [
         {data: 'image', orderable: false, searchable: false, "render": function (data) {
@@ -52,7 +57,7 @@
         }},
         {data: 'status'}
       ],
-      order: [[1, 'asc']]
+      order: [[1, 'desc']]
     });
 
     table.on('page.dt', function() {
