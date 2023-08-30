@@ -3,6 +3,8 @@
 ### Latest Changes
 * Makefile for easy use
 * Add default sorting in tables (Site -> PHP price)
+* Display error message if occurs during calculation
+* Table rendering improvements
 
 ### 1.1.3
 * Frontend: Word-break for links, Scroll top on changing products page.

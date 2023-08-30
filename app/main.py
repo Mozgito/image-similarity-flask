@@ -62,7 +62,7 @@ def resize_image(img_name: str, size: int) -> None:
 
 
 def get_resized_image_path(original_img_name: str, site: str) -> str:
-    if site in ['Lazada', 'Shopee']:
+    if site in ['Lazada', 'Shopee', 'Temu']:
         return os.path.join(application.config['ORIG_IMAGES'], '700', original_img_name)
 
     return os.path.join(application.config['ORIG_IMAGES'], '350', original_img_name)
@@ -318,7 +318,7 @@ def api_similarity_calculate(image_name: str) -> Response:
 
         return json.jsonify({'data': table_data})
     except Exception as e:
-        save_dump_data(application.config['COMPARE_DATA'], image_name + '_log', 'error')
+        save_dump_data(application.config['COMPARE_DATA'], image_name + '_log', str(e))
         return Response(status=400, response=str(e))
 
 
