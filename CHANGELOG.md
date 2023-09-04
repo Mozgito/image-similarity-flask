@@ -1,6 +1,8 @@
 ## Release Notes
 
 ### Latest Changes
+
+### 1.1.5
 * Makefile for easy use
 * Add default sorting in tables (Site -> PHP price)
 * Display error message if occurs during calculation
