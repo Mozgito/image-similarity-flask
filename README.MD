@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)]()
+[![License](https://img.shields.io/badge/license-Apache-blue.svg)]()
 [![Python](https://img.shields.io/badge/python->=3.8-blue.svg)](https://www.python.org/downloads/)
 [![Docker](https://img.shields.io/badge/docker-greeb.svg)](https://docs.docker.com/)
 # image-similarity-flask
@@ -9,6 +9,7 @@ Images are stored in directory and product data stored in MongoDB.
 * This project (docker branch) is depending on the other `scrapy-spiders` project, 
 that is scraping products (photos and data).
 * Built on back of docker & docker compose v2.
+* Makefile for easy use.
 * Backend: Flask + uWSGI + Nginx + Supervisord + external Mongo. Frontend Bootstrap 5 + jQuery UI.
 * Project will be ready on `port:8080` and it's under basic htpasswd authentication.
 * Shares same network with scrapy Mongo.
@@ -19,7 +20,7 @@ Top 10 results (by picture) from each metric by each site are chosen.
 Settings are equivalent to the scrapy project. 
 Note: IP address of Mongo will be equal to Mongo container name.
 2. Add user for Nginx authentication. More details in the README at `server/nginx/auth`.
-3. Build and start project `docker compose up -d`
+3. Build project `make build` and start `make start`
 ### TODO
 - [ ] Replace Processing with Celery task manager.
 - [ ] Selector for similarity metrics.
