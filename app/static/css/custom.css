@@ -1,0 +1,62 @@
+@media screen and (min-width: 1025px) {
+  tr th {
+    font-size: 0.85vw;
+  }
+  tr td {
+    font-size: 0.95vw;
+  }
+}
+
+@media screen and (min-width: 601px) and (max-width: 1024px) {
+  tr th {
+    font-size: 1.6vw;
+  }
+  tr td {
+    font-size: 1.9vw;
+  }
+  tr th:nth-child(5),
+  tr td:nth-child(5) {
+    width: 9vw;
+  }
+}
+
+@media screen and (min-width: 437px) and (max-width: 600px) {
+  tr th {
+    font-size: 2vw;
+  }
+  .btn-open-result {
+    font-size: 0.75rem
+  }
+}
+
+@media screen and (max-width: 436px) {
+  tr th {
+    font-size: 2.1vw;
+  }
+  tr td {
+    font-size: 3.2vw;
+  }
+  .btn-open-result {
+    font-size: 0.7rem
+  }
+}
+
+#product-data tr th:nth-child(1),
+#product-data tr td:nth-child(1) {
+  width: 29vw;
+}
+
+#product-data tr th:nth-child(2),
+#product-data tr td:nth-child(2) {
+  width: 19vw;
+}
+
+#product-data tr th:nth-child(6),
+#product-data tr td:nth-child(6) {
+  width: 19vw;
+}
+
+#results-data tr th:first-child,
+#results-data tr td:first-child {
+  width: 37vw;
+}

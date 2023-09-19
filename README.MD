@@ -3,10 +3,10 @@
 [![Docker](https://img.shields.io/badge/docker-greeb.svg)](https://docs.docker.com/)
 # image-similarity-flask
 Flask app for getting the similar products by photo. 
-List of products and photos are coming from scraping the websites. 
-Images are stored in directory and product data stored in MongoDB.
+List of products and photos is coming from scraping the websites. 
+Images are stored in directory of scraper and product data is stored in MongoDB.
 ### Features
-* This project (docker branch) is depending on the other `scrapy-spiders` project, 
+* This project is depending on the other `scrapy-spiders` project, 
 that is scraping products (photos and data).
 * Built on back of docker & docker compose v2.
 * Makefile for easy use.
@@ -19,11 +19,12 @@ Top 10 results (by picture) from each metric by each site are chosen.
 1. Set Mongo connection data and path to images in `.env`. 
 Settings are equivalent to the scrapy project. 
 Note: IP address of Mongo will be equal to Mongo container name.
-2. Add user for Nginx authentication. More details in the README at `server/nginx/auth`.
-3. Build project `make build` and start `make start`
+2. Set Exchangerate API key.
+3. Add user for Nginx authentication. More details in the README at `server/nginx/auth`.
+4. Build project `make build` and start `make start`.
 ### TODO
 - [ ] Replace Processing with Celery task manager.
-- [ ] Selector for similarity metrics.
+- [ ] Improve similarity calculation with Tensorflow+Keras.
 - [ ] Drop-down list with collections in DB.
 ### License
 This project is licensed under the terms of the Apache license.

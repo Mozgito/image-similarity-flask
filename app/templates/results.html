@@ -16,26 +16,26 @@
 
 {% block content %}
   <p class="h3 text-center p-4">结果的列表 / List of results</p>
-  <table id="results-data" class="table dataTable hover order-column">
+<div class="table-responsive">
+  <table id="results-data" class="table dataTable hover order-column dt-responsive">
     <thead>
       <tr>
-        <th style="width:30%!important">图像 / Image</th>
-        <th style="width:20%!important">日期 / Date</th>
-        <th style="width:35%!important">链接 / Link</th>
-        <th style="width:15%!important">状态 / Status</th>
+        <th data-priority="0">图像 / Image</th>
+        <th data-priority="2">日期 / Date</th>
+        <th data-priority="2">状态 / Status</th>
       </tr>
     </thead>
     <tbody>
     </tbody>
   </table>
+</div>
 {% endblock content %}
 
 {% block scripts %}
   <script>
-
     var table = $('#results-data').DataTable({
       fixedHeader: true,
-      colReorder: true,
+      responsive: true,
       data: {{ results_data|safe }},
       columnDefs: [
         {
@@ -52,10 +52,10 @@
           return '<img src="' + data + '" class="img-fluid"/>';
         }},
         {data: 'date'},
-        {data: 'url', "render": function (data) {
-          return '<a href="' + data + '" class="text-break" target="_blank">' + data + '</a>';
-        }},
-        {data: 'status'}
+        {data: {status : "status", url : "url"}, "render": function (data) {
+          return data.status + '<br></a> <a role="button" class="btn btn-open-result btn-outline-success my-2" href="'
+           + data.url + '" target="_blank">打开链 / Open link</button>';
+        }}
       ],
       order: [[1, 'desc']]
     });

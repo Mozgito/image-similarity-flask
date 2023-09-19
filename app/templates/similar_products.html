@@ -38,7 +38,7 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                  <img src="{{ url_for('get_original_image', filename=original_image) }}" alt="Original Image">
+                  <img src="{{ url_for('get_original_image', filename=original_image) }}" alt="Original Image" class="img-fluid">
                 </div>
               </div>
             </div>
@@ -59,21 +59,23 @@
 {% block content %}
   {% if calculate_status == 'finished' %}
     <p class="h3 text-center p-4">类似产品清单 / List of similar products</p>
-    <table id="product-data" class="table dataTable hover order-column">
-      <thead>
-        <tr>
-          <th style="width:27%!important">图像 / Image</th>
-          <th style="width:19%!important">产品名 / Name</th>
-          <th style="width:8%!important">价格 / Price</th>
-          <th style="width:9%!important">货币 / Currency</th>
-          <th style="width:11%!important">价格 (比索) / PHP Price</th>
-          <th style="width:19%!important">链接 / Link</th>
-          <th style="width:8%!important">网站 / Site</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table id="product-data" class="table dataTable hover order-column dt-responsive w-auto">
+        <thead>
+          <tr>
+            <th data-priority="0">图像 / Image</th>
+            <th data-priority="4">产品名 / Name</th>
+            <th data-priority="1">价格 / Price</th>
+            <th data-priority="1">货币 / Currency</th>
+            <th data-priority="3">比索 / PHP Price</th>
+            <th data-priority="5">链接 / Link</th>
+            <th data-priority="2">网站 / Site</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
   {% endif %}
   {% if calculate_status not in ['calculating', 'finished'] %}
     <div class="d-flex align-items-center justify-content-center vh-100">
@@ -98,7 +100,7 @@
     if ('{{ calculate_status }}' == 'finished') {
       var table = $('#product-data').DataTable({
         fixedHeader: true,
-        colReorder: true,
+        responsive: true,
         ajax: {
           url: '/api/similarity/{{ original_image }}/result'
         },
@@ -124,6 +126,14 @@
           {
             target: 1,
             className: "text-break"
+          },
+          {
+            target: [1, 5],
+            className: "desktop"
+          },
+          {
+            target: 4,
+            className: "not-mobile"
           }
         ],
         columns: [
