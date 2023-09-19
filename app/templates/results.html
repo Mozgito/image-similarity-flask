@@ -3,7 +3,7 @@
 {% block main %}
   <div class="container p-1">
     <div class="row">
-      <div class="col-md-3 p-1">
+      <div class="col-md-5 p-1 m-1">
         <a href="/" class="text-decoration-none">返回主页 / Back to main page
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z"></path>
@@ -20,8 +20,8 @@
     <thead>
       <tr>
         <th style="width:30%!important">图像 / Image</th>
-        <th style="width:20%!important" class="text-break">日期 / Date</th>
-        <th style="width:35%!important" class="text-break">链接 / Link</th>
+        <th style="width:20%!important">日期 / Date</th>
+        <th style="width:35%!important">链接 / Link</th>
         <th style="width:15%!important">状态 / Status</th>
       </tr>
     </thead>
@@ -53,7 +53,7 @@
         }},
         {data: 'date'},
         {data: 'url', "render": function (data) {
-          return '<a href="' + data + '" class="text-break" target="blank">' + data + '</a>';
+          return '<a href="' + data + '" class="text-break" target="_blank">' + data + '</a>';
         }},
         {data: 'status'}
       ],
