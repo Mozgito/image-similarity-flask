@@ -2,6 +2,11 @@
 
 ### Latest Changes
 
+### 1.1.7
+* Image resize fix
+* Docker container restart policy
+* Responsive layout, adjusted for mobile devices
+
 ### 1.1.5
 * Makefile for easy use
 * Add default sorting in tables (Site -> PHP price)
