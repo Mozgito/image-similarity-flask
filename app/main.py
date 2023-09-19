@@ -60,6 +60,9 @@ def resize_image(img_name: str, size: int) -> None:
         )
         cv.imwrite(os.path.join(application.config['ORIG_IMAGES'], str(size), img_name), img_new_padded)
 
+    if height == size and width == size:
+        cv.imwrite(os.path.join(application.config['ORIG_IMAGES'], str(size), img_name), img)
+
 
 def get_resized_image_path(original_img_name: str, site: str) -> str:
     if site in ['Lazada', 'Shopee', 'Temu']:

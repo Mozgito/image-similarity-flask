@@ -6,6 +6,7 @@ services:
     volumes:
       - compare_results:/app/static/compare_results/
       - ${IMAGES_PATH}:/app/static/images/
+    restart: unless-stopped
     ports:
       - "8080:8080"
     networks:
