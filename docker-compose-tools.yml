@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  tools:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_tools
+    container_name: similarity-tools
+    working_dir: /app
+    volumes:
+      - ./app/tools/:/app/
+      - ${IMAGES_PATH}:/app/images/
+      - ./models/:/root/.keras/models/
+    deploy:
+      resources:
+        limits:
+          cpus: '1.8'
+          memory: 1536M
+    networks:
+      - scrapy
+    env_file: .env
+
+networks:
+  scrapy:
+    name: ${NETWORK_NAME}
+    external: true

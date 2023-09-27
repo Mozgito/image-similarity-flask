@@ -1,29 +1,38 @@
-COMPOSE=docker compose -f docker-compose.yml
+COMPOSE_APP=docker compose -f docker-compose-app.yml
+COMPOSE_TOOLS=docker compose -f docker-compose-tools.yml
 
 build:
 	@echo "===> Building app"
-	@$(COMPOSE) build
+	@$(COMPOSE_APP) build
 
 rebuild:
 	@echo "===> Rebuilding app"
 	@docker rmi image-similarity-flask-app
-	@$(COMPOSE) build --no-cache
+	@$(COMPOSE_APP) build --no-cache
 
 start:
-	@echo "===> Running container"
-	@$(COMPOSE) up -d
+	@echo "===> Running app container"
+	@$(COMPOSE_APP) up -d
 
 stop:
-	@echo "===> Stopping container"
-	@$(COMPOSE) stop
+	@echo "===> Stopping app container"
+	@$(COMPOSE_APP) stop
 
 rm:
-	@echo "===> Deleting container"
-	@$(COMPOSE) rm -sf
+	@echo "===> Deleting app container"
+	@$(COMPOSE_APP) rm -sf
 
 cont:
 	@docker exec -it similarity-flask bash
 
 logs:
-	@echo "===> Turn on logs"
-	@$(COMPOSE) logs -f
+	@echo "===> Turn on app logs"
+	@$(COMPOSE_APP) logs -f
+
+build-tools:
+	@echo "===> Building tools"
+	@$(COMPOSE_TOOLS) build
+
+calc-predictions:
+	@echo "===> Calculating predictions"
+	@$(COMPOSE_TOOLS) run --rm tools python calc_predictions.py

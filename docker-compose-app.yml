@@ -1,7 +1,9 @@
 version: '3.8'
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_app
     container_name: similarity-flask
     volumes:
       - compare_results:/app/static/compare_results/

@@ -27,6 +27,9 @@ Note: IP address of Mongo will be equal to Mongo container name.
 Or use the wheel with needed instructions.
 5. Pre-downloaded models' weights can be put into `models` folder.
 6. Build project `make build` and start `make start`.
+### Prediction tool
+1. Build image `make build-tools`.
+2. Run calculation `make calc-predictions` every day at same time for new images from past day.
 ### TODO
 - [ ] Replace Threading with Celery task manager.
 - [ ] Drop-down list with collections in DB.
