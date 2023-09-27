@@ -1,0 +1,10 @@
+FROM python:3.8.10-slim
+
+COPY ./tensorflow-2.8.0-cp38-cp38-linux_x86_64.whl /tensorflow-2.8.0-cp38-cp38-linux_x86_64.whl
+RUN pip3 install --ignore-installed --upgrade /tensorflow-2.8.0-cp38-cp38-linux_x86_64.whl
+
+RUN pip3 install --index-url http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
+    --no-cache-dir Pillow==10.0.0 pymongo==4.5.0 python-dotenv==1.0.0
+
+ENV PYTHONBUFFERED 1
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION python

@@ -1,7 +1,6 @@
 import cv2 as cv
 import heapq
 import math
-import model
 import numpy as np
 import os
 import pickle
@@ -11,6 +10,7 @@ import time
 from flask import Flask, json, render_template, request, Response, redirect, send_from_directory, url_for
 from PIL import Image
 from scipy.spatial.distance import cosine
+from tools import model
 from threading import Thread
 
 application = Flask(__name__)

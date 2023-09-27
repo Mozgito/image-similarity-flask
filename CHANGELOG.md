@@ -2,6 +2,9 @@
 
 ### Latest Changes
 
+### 1.2.1
+* Calculating image predictions tool
+
 ### 1.2.0
 * Tensorflow + Keras similarity
 * ResNet50 Avg-Pool, VGG16 FC2, and VGG16 Flatten models
