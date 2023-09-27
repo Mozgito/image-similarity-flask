@@ -5,26 +5,29 @@ RUN apt-get install -y --no-install-recommends \
         libatlas-base-dev gfortran nginx supervisor libgl1 ffmpeg libsm6 libxext6
 
 COPY ./requirements.txt /app/requirements.txt
+COPY ./tensorflow-2.8.0-cp38-cp38-linux_x86_64.whl /tensorflow-2.8.0-cp38-cp38-linux_x86_64.whl
+RUN pip3 install --ignore-installed --upgrade /tensorflow-2.8.0-cp38-cp38-linux_x86_64.whl
 RUN pip3 install --index-url http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
     --no-cache-dir -r /app/requirements.txt
 
 RUN useradd --no-create-home nginx
-
 RUN rm /etc/nginx/sites-enabled/default
+COPY server/ /etc/
 
 ENV STATIC_URL /static
 ENV STATIC_PATH /app/static
 ENV PYTHONPATH /app
 ENV PYTHONBUFFERED 1
-
-COPY server/ /etc/
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION python
 
 COPY ./app /app
 RUN mkdir /app/static/images && \
-    mkdir -p /app/static/compare_results/original_images/350 && \
-    mkdir -p /app/static/compare_results/original_images/700 && \
+    mkdir -p /app/static/compare_results/original_images && \
     mkdir -p /app/static/compare_results/data && \
-    mkdir -p /app/static/compare_results/exchange_rate
+    mkdir -p /app/static/compare_results/exchange_rate && \
+    mkdir -p /tmp/.keras/models
+COPY ./models/* /tmp/.keras/models/
+
 WORKDIR /app
 RUN chown -R nginx:nginx /app/static/compare_results
 

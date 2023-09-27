@@ -24,7 +24,7 @@
   tr th {
     font-size: 2vw;
   }
-  .btn-open-result {
+  .btn-font {
     font-size: 0.75rem
   }
 }
@@ -36,7 +36,7 @@
   tr td {
     font-size: 3.2vw;
   }
-  .btn-open-result {
+  .btn-font {
     font-size: 0.7rem
   }
 }
@@ -44,6 +44,7 @@
 #product-data tr th:nth-child(1),
 #product-data tr td:nth-child(1) {
   width: 29vw;
+  max-width: 29vw;
 }
 
 #product-data tr th:nth-child(2),
@@ -58,5 +59,6 @@
 
 #results-data tr th:first-child,
 #results-data tr td:first-child {
-  width: 37vw;
+  width: 25vw;
+  max-width: 25vw;
 }
