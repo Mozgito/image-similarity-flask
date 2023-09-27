@@ -2,6 +2,12 @@
 
 ### Latest Changes
 
+### 1.2.0
+* Tensorflow + Keras similarity
+* ResNet50 Avg-Pool, VGG16 FC2, and VGG16 Flatten models
+* Update Dockerfile and requirements
+* Recalculate button on result page
+
 ### 1.1.7
 * Image resize fix
 * Docker container restart policy

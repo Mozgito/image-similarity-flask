@@ -10,11 +10,11 @@ rebuild:
 	@$(COMPOSE) build --no-cache
 
 start:
-	@echo "===> Running app"
+	@echo "===> Running container"
 	@$(COMPOSE) up -d
 
 stop:
-	@echo "===> Running app"
+	@echo "===> Stopping container"
 	@$(COMPOSE) stop
 
 rm:

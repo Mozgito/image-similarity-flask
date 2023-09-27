@@ -6,7 +6,15 @@ services:
     volumes:
       - compare_results:/app/static/compare_results/
       - ${IMAGES_PATH}:/app/static/images/
-    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2048M
+        reservations:
+          cpus: '0.2'
+          memory: 1024M
+    restart: always
     ports:
       - "8080:8080"
     networks:

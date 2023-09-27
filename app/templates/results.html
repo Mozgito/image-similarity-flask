@@ -46,15 +46,25 @@
           target: 1,
           render: DataTable.render.datetime(),
         },
+        {
+          target: 2,
+          className: "text-break"
+        },
       ],
       columns: [
         {data: 'image', orderable: false, searchable: false, "render": function (data) {
           return '<img src="' + data + '" class="img-fluid"/>';
         }},
         {data: 'date'},
-        {data: {status : "status", url : "url"}, "render": function (data) {
-          return data.status + '<br></a> <a role="button" class="btn btn-open-result btn-outline-success my-2" href="'
-           + data.url + '" target="_blank">打开链 / Open link</button>';
+        {data: {status: "status", url: "url", date: "date", calculate_url: "calculate_url"}, "render": function (data) {
+          if (Math.abs(new Date(data.date) - new Date()) / 60000 > 5 && data.status != 'finished') {
+            return data.status + '<br><a role="button" class="btn btn-font btn-outline-success my-2" href="'
+             + data.url + '">打开链 / Open link</a><br><a role="button" class="btn btn-font btn-outline-warning my-2" href="'
+             + data.calculate_url + '">重新开始 / Restart</a>';
+          } else {
+            return data.status + '<br><a role="button" class="btn btn-font btn-outline-success my-2" href="'
+             + data.url + '">打开链 / Open link</a>';
+          }
         }}
       ],
       order: [[1, 'desc']]
