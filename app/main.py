@@ -5,6 +5,7 @@ import numpy as np
 import os
 import pickle
 import pymongo
+import re
 import requests
 import time
 from flask import Flask, json, render_template, request, Response, redirect, send_from_directory, url_for
@@ -177,16 +178,34 @@ def all_products() -> str:
     return render_template('all_products.html', title='All products')
 
 
+@application.route('/best-sellers')
+def best_sellers() -> str:
+    bs_date = request.args.get('bs_date')
+    collection = 'bags_bs'
+    filter_dates = get_db()[collection].distinct('date')
+    filter_dates.sort(reverse=True)
+
+    if not isinstance(bs_date, str) or re.search(r'^\d{4}\.\d{2}\.\d{2}$', bs_date) is None:
+        bs_date = get_db()[collection].find().sort('date', -1).limit(1)[0]['date']
+
+    return render_template(
+        'best_sellers.html',
+        title='Best sellers',
+        bs_date=bs_date,
+        filter_dates=filter_dates
+    )
+
+
 @application.route('/similarity')
 def similarity() -> [str, Response]:
     image_name = request.args.get('original_image')
     recalculate = request.args.get('recalc')
 
     if not isinstance(image_name, str) or not allowed_file(image_name):
-        return Response(status=400)
+        return Response(status=400, response="Incorrect image file")
 
     if not os.path.isfile(os.path.join(application.config['ORIG_IMAGES'], image_name)):
-        return Response(status=404)
+        return Response(status=404, response="Image file was not found")
 
     if recalculate:
         remove_dump_data(application.config['COMPARE_DATA'], image_name + '_log')
@@ -269,14 +288,38 @@ def api_all_products() -> Response:
     return json.jsonify({'data': table_data})
 
 
+@application.route('/api/best-sellers/<date>')
+def api_best_sellers(date: str) -> Response:
+    if re.search(r'^\d{4}\.\d{2}\.\d{2}$', date) is None:
+        return Response(status=404, response="Specify the date for search")
+
+    collection = 'bags_bs'
+    table_data = []
+
+    for row in get_db()[collection].find({'date': date}):
+        table_data.append({
+            'image': row['images'][0]['path'],
+            'name': row['name'],
+            'price': row['price'],
+            'sales': row['sales'],
+            'rating': row['rating'],
+            'reviews': row['reviews'],
+            'url': row['url'],
+            'category': row['category'],
+            'date': row['date']
+        })
+
+    return json.jsonify({'data': table_data})
+
+
 @application.route('/api/similarity/<image_name>/calculate')
 def api_similarity_calculate(image_name: str) -> Response:
     with application.app_context():
         if not isinstance(image_name, str) or not allowed_file(image_name):
-            return Response(status=400)
+            return Response(status=400, response="Incorrect image file")
 
         if not os.path.isfile(os.path.join(application.config['ORIG_IMAGES'], image_name)):
-            return Response(status=404)
+            return Response(status=404, response="Image file was not found")
 
         try:
             collection = 'bags'
@@ -342,4 +385,4 @@ def api_similarity_result(image_name: str) -> Response:
     if is_dump_exist(application.config['COMPARE_DATA'], image_name):
         return json.jsonify({'data': get_dump_data(application.config['COMPARE_DATA'], image_name)})
 
-    return Response(status=404)
+    return Response(status=404, response="Comparison result for this image was not found")

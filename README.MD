@@ -17,6 +17,7 @@ that is scraping products (photos and data).
 * Shares same network with scrapy Mongo.
 * Image similarity is calculated by 3 models: ResNet50 Avg-Pool, VGG16 FC2, and VGG16 Flatten. 
 Top 10-15 results (by picture) from each model by each site are chosen.
+* List of bestsellers with filter by report date.
 ### First-time setup
 1. Set Mongo connection data and path to images in `.env`. 
 Settings are equivalent to the scrapy project. 

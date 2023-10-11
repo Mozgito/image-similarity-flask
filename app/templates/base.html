@@ -43,7 +43,7 @@
     </div>
     {% block main %}<div class="container p-3">
       <div class="row justify-content-evenly">
-        <div class="col-md-4 p-1 m-2 text-center">
+        <div class="col-md-4 p-2 m-2 text-center">
           <form class="was-validated" action="{{ url_for('upload_image') }}" enctype="multipart/form-data" method="POST">
             <div class="mb-4">
               <label for="origImgUpload" class="form-label fw-bold">上传原始图像 / Upload original image</label>
@@ -53,21 +53,29 @@
             <button type="submit" class="btn btn-primary">上传并开始 / Upload and start</button>
           </form>
         </div>
-        <div class="col-md-2 p-1 m-2 text-center">
+        <div class="col-md-4 p-2 m-2 text-center">
           <form action="{{ url_for('results') }}" enctype="multipart/form-data" method="GET">
-            <div class="mb-5">
+            <div class="mb-4">
               <label class="form-label fw-bold">查看结果的列表 / View all results</label>
             </div>
-            <button type="submit" class="btn btn-primary mt-2">结果的列表 / RESULTS</button>
+            <button type="submit" class="btn btn-primary mt-2">结果的列表 / Results</button>
           </form>
         </div>
-        <div class="col-md-4 p-1 m-2 text-center">
+        <div class="col-md-4 p-2 m-2 text-center">
           <form action="{{ url_for('all_products') }}" enctype="multipart/form-data" method="GET">
-            <div class="mb-5">
+            <div class="mb-4">
               <label class="form-label fw-bold">查看所有产品 / View all products</label>
               <label class="form-text text-danger mx-5">注意：所有图像加载到您的浏览器中！ / Attention: It will load all the images into your browser!</label>
             </div>
-            <button type="submit" class="btn btn-primary mt-2">全部装载 / LOAD ALL</button>
+            <button type="submit" class="btn btn-primary mt-2">全部装载 / Load All</button>
+          </form>
+        </div>
+        <div class="col-md-4 p-2 m-2 text-center">
+          <form action="{{ url_for('best_sellers') }}" enctype="multipart/form-data" method="GET">
+            <div class="mb-4">
+              <label class="form-label fw-bold">查看畅销 / View Best sellers</label>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">畅销 / Best sellers</button>
           </form>
         </div>
       </div>
