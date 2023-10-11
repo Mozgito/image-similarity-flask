@@ -20,13 +20,14 @@ ENV PYTHONPATH /app
 ENV PYTHONBUFFERED 1
 ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION python
 
+COPY ./models/* /tmp/.keras/models/
+
 COPY ./app /app
 RUN mkdir /app/static/images && \
     mkdir -p /app/static/compare_results/original_images && \
     mkdir -p /app/static/compare_results/data && \
     mkdir -p /app/static/compare_results/exchange_rate && \
     mkdir -p /tmp/.keras/models
-COPY ./models/* /tmp/.keras/models/
 
 WORKDIR /app
 RUN chown -R nginx:nginx /app/static/compare_results

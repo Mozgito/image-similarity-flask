@@ -2,6 +2,9 @@
 
 ### Latest Changes
 
+### 1.2.2
+* Page with bestsellers with filter by report date
+
 ### 1.2.1
 * Calculating image predictions tool
 

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block main %}
+  <div class="container p-1">
+    <div class="row justify-content-between">
+      <div class="col-auto p-1 m-1">
+        <a href="/" class="text-decoration-none">返回主页 / Back to main page
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z"></path>
+          </svg>
+        </a>
+      </div>
+      <div class="dropdown col-auto p-1 m-1">
+        <button class="btn btn-info dropdown-toggle" type="button" id="dropdownDate" data-bs-toggle="dropdown" aria-expanded="false">
+          筛选按日期 / Filter by date
+        </button>
+        <ul class="dropdown-menu" id="dropdownDateList" aria-labelledby="dropdownDate">
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock main %}
+
+{% block content %}
+  <p class="h3 text-center p-4">畅销 / Best sellers</p>
+  <div class="table-responsive">
+    <table id="product-data" class="table dataTable hover order-column dt-responsive w-auto">
+      <thead>
+        <tr>
+          <th data-priority="0">图像 /Image</th>
+          <th data-priority="4">产品名 / Name</th>
+          <th data-priority="1">价格 /Price, $</th>
+          <th data-priority="1" title="How many sold in past month">销售数量 / Sales</th>
+          <th data-priority="1">评级 / Rating</th>
+          <th data-priority="3">链接 / Link</th>
+          <th data-priority="1">条评价 / Reviews</th>
+          <th data-priority="2">类别 / Category</th>
+          <th data-priority="4">日期 / Date</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+{% endblock content %}
+
+{% block scripts %}
+  <script>
+    var date_list = document.getElementById("dropdownDateList");
+    for (let filter_date of {{ filter_dates|safe }}) {
+      var li_row = document.createElement("li");
+      var date_row = document.createElement("a");
+      date_row.classList.add("dropdown-item");
+      date_row.href = '{{ url_for("best_sellers", bs_date=filter_date) }}' + filter_date;
+      date_row.textContent = filter_date;
+      if (filter_date == '{{ bs_date|safe }}') {
+        date_row.classList.add("active");
+        date_row.ariaCurrent = "true";
+        date_row.removeAttribute("href");
+      }
+
+      li_row.appendChild(date_row);
+      date_list.appendChild(li_row);
+    }
+
+    var table = $('#product-data').DataTable({
+      fixedHeader: true,
+      responsive: true,
+      ajax: '/api/best-sellers/{{ bs_date }}',
+      dom: 'Blfrtip',
+      buttons: {
+        buttons: [
+          {
+            extend: 'excelHtml5',
+            text: 'Export Excel',
+            filename: 'export',
+            exportOptions: {
+              modifier: {
+                page: 'all'
+              }
+            }
+          }
+        ]
+      },
+      columnDefs: [
+        {
+          target: "_all",
+          className: "dt-head-center"
+        },
+        {
+          target: [1, 5],
+          className: "text-break"
+        },
+        {
+          target: [1, 5],
+          className: "desktop"
+        }
+      ],
+      columns: [
+        {data: 'image', orderable: false, searchable: false, "render": function (data) {
+          return '<img src="/static/images/' + data + '" class="img-fluid"/>';
+        }},
+        {data: 'name'},
+        {data: 'price'},
+        {data: 'sales'},
+        {data: 'rating'},
+        {data: 'url', "render": function (data) {
+          return '<a href="' + data + '" class="text-break" target="_blank">' + data + '</a>';
+        }},
+        {data: 'reviews'},
+        {data: 'category'},
+        {data: 'date'}
+      ],
+      order: [[7, 'asc'], [3, 'desc'], [4, 'desc'], [5, 'desc']]
+    });
+
+    table.buttons().container().insertBefore('#product-data_filter');
+
+    table.on('page.dt', function() {
+      $('html, body').animate({
+        scrollTop: $(".dataTables_wrapper").offset().top
+      }, 'slow');
+      $('thead tr th:first-child').focus().blur();
+    });
+  </script>
+{% endblock %}
