@@ -1,6 +1,7 @@
 ## Release Notes
 
 ### Latest Changes
+* SVG favicon
 
 ### 1.2.2
 * Page with bestsellers with filter by report date
