@@ -34,6 +34,5 @@ Or use the wheel with needed instructions.
 ### TODO
 - [ ] Replace Threading with Celery task manager.
 - [ ] Drop-down list with collections in DB.
-- [ ] Bestsellers statistics.
 ### License
 This project is licensed under the terms of the Apache license.
