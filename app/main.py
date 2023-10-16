@@ -3,15 +3,15 @@ import heapq
 import math
 import numpy as np
 import os
-import pickle
 import pymongo
 import re
 import requests
 import time
 from flask import Flask, json, render_template, request, Response, redirect, send_from_directory, url_for
+from pickle import loads as pickle_loads
 from PIL import Image
 from scipy.spatial.distance import cosine
-from tools import model
+from tools.model import load_models
 from threading import Thread
 
 application = Flask(__name__)
@@ -87,13 +87,13 @@ def calculate_similarity(img_resnet, img_vgg16_flatten, img_vgg16_fc2, collectio
 
     for img_comp in imgs_comp:
         result['resnet-avg-pool'].update(
-            {img_comp['image']: cosine_similarity(img_resnet, pickle.loads(img_comp['resnet-avg-pool']))}
+            {img_comp['image']: cosine_similarity(img_resnet, pickle_loads(img_comp['resnet-avg-pool']))}
         )
         result['vgg16-flatten'].update(
-            {img_comp['image']: cosine_similarity(img_vgg16_flatten, pickle.loads(img_comp['vgg16-flatten']))}
+            {img_comp['image']: cosine_similarity(img_vgg16_flatten, pickle_loads(img_comp['vgg16-flatten']))}
         )
         result['vgg16-fc2'].update(
-            {img_comp['image']: cosine_similarity(img_vgg16_fc2, pickle.loads(img_comp['vgg16-fc2']))}
+            {img_comp['image']: cosine_similarity(img_vgg16_fc2, pickle_loads(img_comp['vgg16-fc2']))}
         )
 
     return result
@@ -318,27 +318,18 @@ def api_similarity_calculate(image_name: str) -> Response:
         if not isinstance(image_name, str) or not allowed_file(image_name):
             return Response(status=400, response="Incorrect image file")
 
-        if not os.path.isfile(os.path.join(application.config['ORIG_IMAGES'], image_name)):
+        image_path = os.path.join(application.config['ORIG_IMAGES'], image_name)
+        if not os.path.isfile(image_path):
             return Response(status=404, response="Image file was not found")
 
         try:
             collection = 'bags'
             sites = get_db()['predictions'].distinct('site')
             php_rate = get_exchange_rate_data()['conversion_rates']
+            img_resnet, img_vgg16_flatten, img_vgg16_fc2 = load_models(image_path)
+
             table_data = []
             save_dump_data(application.config['COMPARE_DATA'], image_name + '_log', 'calculating')
-            img_resnet = model.get_image_prediction(
-                os.path.join(application.config['ORIG_IMAGES'], image_name),
-                model.get_resnet_model()
-            )
-            img_vgg16_flatten = model.get_image_prediction(
-                os.path.join(application.config['ORIG_IMAGES'], image_name),
-                model.get_vgg16_model()
-            )
-            img_vgg16_fc2 = model.get_image_prediction(
-                os.path.join(application.config['ORIG_IMAGES'], image_name),
-                model.get_vgg16_model('fc2')
-            )
 
             for site in sites:
                 total_similarity_result = calculate_similarity(

@@ -1,4 +1,3 @@
-import model
 import numpy as np
 import pickle
 import pymongo
@@ -6,6 +5,7 @@ import os
 import time
 from bson.binary import Binary
 from dotenv import load_dotenv
+from model import load_models
 
 load_dotenv()
 np.seterr(divide='ignore', invalid='ignore')
@@ -42,13 +42,9 @@ if __name__ == '__main__':
             if is_file_older_than_x_days(image_path):
                 continue
 
-            img_resnet = model.get_image_prediction(image_path, model.get_resnet_model())
+            img_resnet, img_vgg16_flatten, img_vgg16_fc2 = load_models(image_path)
             binary_resnet = Binary(pickle.dumps(img_resnet, protocol=2))
-
-            img_vgg16_flatten = model.get_image_prediction(image_path, model.get_vgg16_model())
             binary_vgg16_flatten = Binary(pickle.dumps(img_vgg16_flatten, protocol=2))
-
-            img_vgg16_fc2 = model.get_image_prediction(image_path, model.get_vgg16_model('fc2'))
             binary_vgg16_fc2 = Binary(pickle.dumps(img_vgg16_fc2, protocol=2))
 
             img_item = {
