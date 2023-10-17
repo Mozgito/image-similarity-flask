@@ -1,26 +1,23 @@
 import numpy as np
-import pickle
-import pymongo
 import os
 import time
 from bson.binary import Binary
+from database import DatabaseHandler
 from dotenv import load_dotenv
 from model import load_models
+from pickle import dumps as pickle_dumps
 
 load_dotenv()
 np.seterr(divide='ignore', invalid='ignore')
+db_handler = DatabaseHandler(os.environ.get("APP_MONGO_URL"), os.environ.get("APP_MONGO_DB"))
 
 
-def get_db():
-    client = pymongo.MongoClient(os.environ.get("APP_MONGO_URL"), serverSelectionTimeoutMS=10000, connect=False)
-    return client[os.environ.get("APP_MONGO_DB")]
+def update_prediction(item):
+    query = {"image": item["image"], "site": item["site"]}
+    result = db_handler.find_one_and_update('predictions', query, item)
 
-
-def update_prediction(db, item):
-    if db['predictions'].find_one_and_update(
-            {"image": item["image"], "site": item["site"]},
-            {"$set": item}) is None:
-        db['predictions'].insert_one(item)
+    if result is None:
+        db_handler.insert_one('predictions', item)
 
 
 def is_file_older_than_x_days(file, days=1):
@@ -29,9 +26,8 @@ def is_file_older_than_x_days(file, days=1):
 
 
 if __name__ == '__main__':
-    database = get_db()
     collection = 'bags'
-    sites = database[collection].distinct('site')
+    sites = db_handler.distinct(collection, 'site')
 
     for site in sites:
         images_path = 'images/{}/{}/'.format(collection, site)
@@ -43,9 +39,9 @@ if __name__ == '__main__':
                 continue
 
             img_resnet, img_vgg16_flatten, img_vgg16_fc2 = load_models(image_path)
-            binary_resnet = Binary(pickle.dumps(img_resnet, protocol=2))
-            binary_vgg16_flatten = Binary(pickle.dumps(img_vgg16_flatten, protocol=2))
-            binary_vgg16_fc2 = Binary(pickle.dumps(img_vgg16_fc2, protocol=2))
+            binary_resnet = Binary(pickle_dumps(img_resnet, protocol=2))
+            binary_vgg16_flatten = Binary(pickle_dumps(img_vgg16_flatten, protocol=2))
+            binary_vgg16_fc2 = Binary(pickle_dumps(img_vgg16_fc2, protocol=2))
 
             img_item = {
                 'image': image_name,
@@ -55,4 +51,4 @@ if __name__ == '__main__':
                 'vgg16-flatten': binary_vgg16_flatten,
                 'vgg16-fc2': binary_vgg16_fc2
             }
-            update_prediction(database, img_item)
+            update_prediction(img_item)

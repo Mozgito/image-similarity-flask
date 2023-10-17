@@ -3,7 +3,6 @@ import heapq
 import math
 import numpy as np
 import os
-import pymongo
 import re
 import requests
 import time
@@ -11,18 +10,15 @@ from flask import Flask, json, render_template, request, Response, redirect, sen
 from pickle import loads as pickle_loads
 from PIL import Image
 from scipy.spatial.distance import cosine
+from tools.database import DatabaseHandler
 from tools.model import load_models
 from threading import Thread
 
 application = Flask(__name__)
 application.config.from_prefixed_env('APP')
 np.seterr(divide='ignore', invalid='ignore')
+db_handler = DatabaseHandler(application.config['MONGO_URL'], application.config['MONGO_DB'])
 ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'bmp']
-
-
-def get_db():
-    client = pymongo.MongoClient(application.config['MONGO_URL'], serverSelectionTimeoutMS=10000, connect=False)
-    return client[application.config['MONGO_DB']]
 
 
 def allowed_file(filename: str) -> bool:
@@ -83,7 +79,7 @@ def get_similar_by_metric(compare_results: dict) -> set:
 
 def calculate_similarity(img_resnet, img_vgg16_flatten, img_vgg16_fc2, collection: str, site: str) -> dict:
     result = {'resnet-avg-pool': {}, 'vgg16-flatten': {}, 'vgg16-fc2': {}}
-    imgs_comp = get_db()['predictions'].find({'site': site, 'type': collection})
+    imgs_comp = db_handler.find(collection, {'site': site, 'type': collection})
 
     for img_comp in imgs_comp:
         result['resnet-avg-pool'].update(
@@ -182,11 +178,11 @@ def all_products() -> str:
 def best_sellers() -> str:
     bs_date = request.args.get('bs_date')
     collection = 'bags_bs'
-    filter_dates = get_db()[collection].distinct('date')
+    filter_dates = db_handler.distinct(collection, 'date')
     filter_dates.sort(reverse=True)
 
     if not isinstance(bs_date, str) or re.search(r'^\d{4}\.\d{2}\.\d{2}$', bs_date) is None:
-        bs_date = get_db()[collection].find().sort('date', -1).limit(1)[0]['date']
+        bs_date = filter_dates[0]
 
     return render_template(
         'best_sellers.html',
@@ -268,15 +264,16 @@ def api_all_products() -> Response:
     collection = 'bags'
     php_rate = get_exchange_rate_data()['conversion_rates']
     table_data = []
+    projection = {'images.path': 1, 'name': 1, 'price': 1, 'currency': 1, 'url': 1, 'site': 1}
 
-    for row in get_db()[collection].find():
+    for row in db_handler.find(collection, {}, projection):
         if row['currency'] != 'PHP':
             php_price = round(float(row['price']) / php_rate[row['currency']], 2)
         else:
             php_price = row['price']
 
         table_data.append({
-            'image': row['images'][0]['path'] if len(row['images']) > 0 else '',
+            'image': row['images'][0]['path'],
             'name': row['name'],
             'price': row['price'],
             'currency': row['currency'],
@@ -296,7 +293,7 @@ def api_best_sellers(date: str) -> Response:
     collection = 'bags_bs'
     table_data = []
 
-    for row in get_db()[collection].find({'date': date}):
+    for row in db_handler.find(collection, {'date': date}):
         table_data.append({
             'image': row['images'][0]['path'],
             'name': row['name'],
@@ -324,7 +321,7 @@ def api_similarity_calculate(image_name: str) -> Response:
 
         try:
             collection = 'bags'
-            sites = get_db()['predictions'].distinct('site')
+            sites = db_handler.distinct('predictions', 'site')
             php_rate = get_exchange_rate_data()['conversion_rates']
             img_resnet, img_vgg16_flatten, img_vgg16_fc2 = load_models(image_path)
 
@@ -343,7 +340,9 @@ def api_similarity_calculate(image_name: str) -> Response:
 
                 for similar_image_name in top_similar_images:
                     similar_image_path = '{}/{}/{}'.format(collection, site, similar_image_name)
-                    product_data = get_db()[collection].find({'images.path': similar_image_path}).sort([('price', 1)]).limit(2)
+                    query = {'images.path': similar_image_path}
+                    projection = {'name': 1, 'price': 1, 'currency': 1, 'url': 1, 'site': 1}
+                    product_data = db_handler.find(collection, query, projection, sort=[('price', 1)], limit=2)
 
                     for row in product_data:
                         if next(filter(lambda d: d.get('url') == row['url'], table_data), None) is None:

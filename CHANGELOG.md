@@ -3,6 +3,7 @@
 ### Latest Changes
 * SVG favicon
 * Refactor "model" module
+* Refactor DB methods
 
 ### 1.2.2
 * Page with bestsellers with filter by report date
